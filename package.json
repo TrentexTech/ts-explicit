@@ -1,0 +1,29 @@
+{
+  "name": "ts-explicit",
+  "version": "0.1.0",
+  "description": "CLI tool that adds type annotations based on TypeScript's type inference",
+  "bin": {
+    "ts-explicit": "./dist/index.js"
+  },
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "typescript",
+    "cli",
+    "type annotations"
+  ],
+  "author": "kosei28",
+  "license": "MIT",
+  "dependencies": {
+    "ts-morph": "^25.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "typescript": "^5.7.3"
+  }
+}
