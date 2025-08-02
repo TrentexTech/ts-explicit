@@ -17,7 +17,8 @@ const invalidArgs = args
   .filter(
     (arg) =>
       !arg.startsWith("--tsconfig=") &&
-      !arg.startsWith("--include-literal-types")
+      !arg.startsWith("--include-literal-types") &&
+      !arg.startsWith("--ignore-any-type")
   );
 if (invalidArgs.length > 0) {
   console.error("Error: Invalid arguments:", invalidArgs.join(", "));
@@ -33,6 +34,7 @@ const globPattern = args[0];
 let tsConfigPath = path.join(process.cwd(), "tsconfig.json");
 let isExplicitTsConfig = false;
 let includeLiteralTypes = false;
+let ignoreAnyType = false;
 
 args.slice(1).forEach((arg) => {
   if (arg.startsWith("--tsconfig=")) {
@@ -40,6 +42,8 @@ args.slice(1).forEach((arg) => {
     isExplicitTsConfig = true;
   } else if (arg === "--include-literal-types") {
     includeLiteralTypes = true;
+  } else if (arg === "--ignore-any-type") {
+    ignoreAnyType = true;
   }
 });
 
@@ -83,6 +87,7 @@ sourceFiles.forEach((sourceFile) => {
       node.getParameters().forEach((param) => {
         if (!param.getTypeNode()) {
           const inferredType = param.getType().getText(param);
+          if (ignoreAnyType && inferredType === "any") return;
           param.setType(inferredType);
           annotationCount++;
         }
@@ -90,6 +95,7 @@ sourceFiles.forEach((sourceFile) => {
       // Add return type annotations
       if (!node.getReturnTypeNode()) {
         const inferredReturnType = node.getReturnType().getText(node);
+          if (ignoreAnyType && inferredReturnType === "any") return;
         node.setReturnType(inferredReturnType);
         annotationCount++;
       }
@@ -111,6 +117,7 @@ sourceFiles.forEach((sourceFile) => {
         return;
       }
       const inferredType = type.getText(varDecl);
+      if (ignoreAnyType && inferredType === "any") return;
       varDecl.setType(inferredType);
       annotationCount++;
     }
@@ -124,6 +131,7 @@ sourceFiles.forEach((sourceFile) => {
       constructor.getParameters().forEach((param) => {
         if (!param.getTypeNode()) {
           const inferredType = param.getType().getText(param);
+          if (ignoreAnyType && inferredType === "any") return;
           param.setType(inferredType);
           annotationCount++;
         }
@@ -133,6 +141,7 @@ sourceFiles.forEach((sourceFile) => {
     cls.getProperties().forEach((prop) => {
       if (!prop.getTypeNode() && prop.getInitializer()) {
         const inferredType = prop.getType().getText(prop);
+        if (ignoreAnyType && inferredType === "any") return;
         prop.setType(inferredType);
         annotationCount++;
       }
