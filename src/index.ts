@@ -95,7 +95,7 @@ sourceFiles.forEach((sourceFile) => {
       // Add return type annotations
       if (!node.getReturnTypeNode()) {
         const inferredReturnType = node.getReturnType().getText(node);
-          if (ignoreAnyType && inferredReturnType === "any") return;
+        if (ignoreAnyType && inferredReturnType === "any") return;
         node.setReturnType(inferredReturnType);
         annotationCount++;
       }
@@ -143,6 +143,16 @@ sourceFiles.forEach((sourceFile) => {
         const inferredType = prop.getType().getText(prop);
         if (ignoreAnyType && inferredType === "any") return;
         prop.setType(inferredType);
+        annotationCount++;
+      }
+    });
+
+    // Add return type annotations to get accessors
+    cls.getGetAccessors().forEach((decl) => {
+      if (!decl.getReturnTypeNode()) {
+        const inferredReturnType = decl.getReturnType().getText(decl);
+        if (ignoreAnyType && inferredReturnType === "any") return;
+        decl.setReturnType(inferredReturnType);
         annotationCount++;
       }
     });
